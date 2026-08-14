@@ -1,0 +1,38 @@
+import { mockGovernmentUpdates } from '../utils/mockData';
+
+export default function Government() {
+  return (
+    <section className="mx-auto w-full max-w-3xl">
+      <header className="mb-7">
+        <p className="text-sm font-semibold uppercase tracking-wider text-[#2E7D32]">Government bulletin</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Government Information</h1>
+        <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+          Important local notices, contacts, and schemes for your farm.
+        </p>
+      </header>
+
+      <div className="space-y-5">
+        {mockGovernmentUpdates.map((update) => (
+          <article key={update.id} className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm sm:p-7">
+            <div className="flex items-start gap-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-green-50 text-2xl">
+                {update.icon}
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-[#2E7D32]">{update.category}</p>
+                <h2 className="mt-1 text-xl font-bold leading-7 text-slate-900 sm:text-2xl">{update.title}</h2>
+              </div>
+            </div>
+            <p className="mt-5 text-base leading-7 text-slate-600 sm:text-lg">{update.description}</p>
+            <button
+              type="button"
+              className="mt-5 rounded-xl border border-[#2E7D32] px-4 py-2.5 text-base font-semibold text-[#2E7D32] transition hover:bg-green-50 focus:outline-none focus:ring-4 focus:ring-green-100"
+            >
+              Read More
+            </button>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
