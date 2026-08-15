@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import LanguagePopup from '../components/LanguagePopup';
 import { useUser } from '../context/UserContext';
 import { useTranslation } from '../hooks/useTranslation';
 
@@ -10,7 +11,7 @@ const dashboardItems = [
 ];
 
 export default function Home() {
-  const { user } = useUser();
+  const { setLanguage, user } = useUser();
   const { t } = useTranslation();
   const currentDate = new Intl.DateTimeFormat('en-IN', {
     weekday: 'long',
@@ -48,6 +49,8 @@ export default function Home() {
           </Link>
         ))}
       </div>
+
+      <LanguagePopup onLanguageSelect={setLanguage} />
     </section>
   );
 }

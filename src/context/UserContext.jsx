@@ -1,5 +1,29 @@
 import { createContext, useContext, useMemo, useState } from 'react';
 
+const languageCodeToName = {
+  en: 'English',
+  hi: 'Hindi',
+  mr: 'Marathi',
+  bn: 'Bengali',
+  te: 'Telugu',
+  ta: 'Tamil',
+  pa: 'Punjabi',
+};
+
+const languageNameToCode = Object.entries(languageCodeToName).reduce(
+  (codes, [code, name]) => ({ ...codes, [name]: code }),
+  {},
+);
+
+const normalizeLanguage = (language) => languageCodeToName[language] || language || 'English';
+
+const getLanguageCode = (language) => languageNameToCode[normalizeLanguage(language)] || 'en';
+
+const getSavedLanguage = () => {
+  const savedLanguage = localStorage.getItem('saathi_language');
+  return normalizeLanguage(savedLanguage);
+};
+
 const defaultUser = {
   name: '',
   farmerId: '',
@@ -21,8 +45,10 @@ export function UserProvider({ children }) {
     return saved ? JSON.parse(saved) : defaultUser;
   });
   const [location, setLocation] = useState(defaultLocation);
-  const [preferredLanguage, setPreferredLanguage] = useState('Hindi');
-  const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('token'));
+  const [preferredLanguage, setPreferredLanguage] = useState(() => getSavedLanguage());
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    () => !!localStorage.getItem('token') || !!localStorage.getItem('user'),
+  );
 
   const login = (userData) => {
     const newUser = { ...defaultUser, ...userData };
@@ -42,7 +68,9 @@ export function UserProvider({ children }) {
   };
 
   const setLanguage = (lang) => {
-    setPreferredLanguage(lang);
+    const languageName = normalizeLanguage(lang);
+    setPreferredLanguage(languageName);
+    localStorage.setItem('saathi_language', getLanguageCode(languageName));
   };
 
   const value = useMemo(

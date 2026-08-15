@@ -1,55 +1,57 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
+import { MicrophoneIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
-export default function AIVoiceModal({ onClose }) {
-  const [messages, setMessages] = useState([
-    { role: 'ai', text: 'Namaste Kisan Bhai / Behan! Main SAATHI hoon. Aapki kheti aur mandi ki jaankari ke liye main hamesha taiyar hoon. Boliye, main aapki kya madad karoon?' }
-  ]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef(null);
+const transcriptWords = ['मेरे', 'पास', '500', 'किलो', 'गेहूं', 'है,', 'आज', 'कहाँ', 'बेचूं?'];
+const mockAssistantResponse = 'AI Assistant: Best price for wheat is at Varanasi Mandi - ₹2,450/quintal.';
+
+export default function AIVoiceModal({ onClose, onResponse }) {
+  const [transcript, setTranscript] = useState('Listening...');
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    let wordIndex = 0;
+    let intervalId;
+
+    const startTyping = window.setTimeout(() => {
+      setTranscript('');
+      intervalId = window.setInterval(() => {
+        const nextWord = transcriptWords[wordIndex];
+
+        setTranscript((currentTranscript) => (
+          `${currentTranscript}${currentTranscript ? ' ' : ''}${nextWord}`
+        ));
+        wordIndex += 1;
+
+        if (wordIndex >= transcriptWords.length) {
+          window.clearInterval(intervalId);
+        }
+      }, 260);
+    }, 900);
+
+    return () => {
+      window.clearTimeout(startTyping);
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') {
+        onClose();
+      }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  const handleSend = async (e) => {
-    e?.preventDefault();
-    if (!input.trim() || isLoading) return;
-
-    const userText = input.trim();
-    setMessages(prev => [...prev, { role: 'user', text: userText }]);
-    setInput('');
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('http://localhost:5001/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userText })
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        setMessages(prev => [...prev, { role: 'ai', text: data.reply }]);
-      }
-    } catch (err) {
-      setMessages(prev => [...prev, { role: 'ai', text: 'Maaf karein, network error aayi hai. Kripya thodi der baad prayas karein.' }]);
-    } finally {
-      setIsLoading(false);
-    }
+  const stopListening = () => {
+    onResponse?.(mockAssistantResponse);
+    onClose();
   };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[70] flex items-end justify-center bg-slate-950/55 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       role="presentation"
       onClick={onClose}
     >
@@ -57,63 +59,65 @@ export default function AIVoiceModal({ onClose }) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="ai-voice-modal-title"
-        className="flex flex-col h-[85vh] w-full max-w-lg rounded-3xl bg-white p-5 sm:p-6 shadow-2xl overflow-hidden"
+        className="w-full max-w-xl rounded-t-3xl border border-white/60 bg-white/90 p-5 shadow-2xl backdrop-blur-lg sm:rounded-3xl sm:p-6"
         onClick={(event) => event.stopPropagation()}
       >
-        {/* Chat Header */}
-        <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-4">
+        <header className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#2E7D32] text-xl text-white shadow-md">🎙️</span>
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#15803D] text-white shadow-lg shadow-green-900/25">
+              <MicrophoneIcon className="h-6 w-6" />
+            </span>
             <div>
-              <h2 id="ai-voice-modal-title" className="text-xl font-bold text-slate-900 leading-tight">SAATHI AI (साथी)</h2>
-              <p className="text-xs text-green-700 font-medium">Online</p>
+              <h2 id="ai-voice-modal-title" className="text-2xl font-extrabold text-slate-900">SAATHI is listening</h2>
+              <p className="mt-1 text-sm font-semibold text-[#15803D]">Voice-first market assistant</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition bg-gray-50 hover:bg-gray-100 p-2 rounded-full">
-             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-          </button>
-        </div>
 
-        {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto pr-2 space-y-4 pb-2 scrollbar-thin scrollbar-thumb-gray-300">
-          {messages.map((msg, idx) => (
-            <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed shadow-sm ${msg.role === 'user' ? 'bg-[#15803D] text-white rounded-br-sm' : 'bg-green-50/80 text-slate-800 border border-green-100 rounded-bl-sm'}`}>
-                {msg.text}
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-green-50/80 text-green-800 border border-green-100 rounded-2xl rounded-bl-sm px-5 py-3.5 text-sm flex gap-1 shadow-sm">
-                <span className="animate-bounce">.</span><span className="animate-bounce" style={{animationDelay: '0.2s'}}>.</span><span className="animate-bounce" style={{animationDelay: '0.4s'}}>.</span>
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Chat Input */}
-        <form onSubmit={handleSend} className="mt-3 flex gap-2 items-center bg-gray-50 p-1.5 rounded-2xl border border-gray-200 focus-within:border-green-400 focus-within:ring-2 focus-within:ring-green-100 transition-all">
-          <button type="button" className="p-2.5 text-gray-400 hover:text-green-700 hover:bg-green-50 rounded-xl transition" title="Voice Input">
-             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
-          </button>
-          <input 
-            type="text"
-            className="flex-1 bg-transparent px-2 py-2.5 focus:outline-none text-slate-800 text-[15px]"
-            placeholder="Kheti ya mandi se juda sawal poochein..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            disabled={isLoading}
-          />
-          <button 
-            type="submit" 
-            disabled={isLoading || !input.trim()}
-            className="p-2.5 bg-[#2E7D32] text-white rounded-xl hover:bg-[#1B5E20] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          <button
+            aria-label="Cancel voice assistant"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700 focus:outline-none focus:ring-4 focus:ring-slate-200"
+            type="button"
+            onClick={onClose}
           >
-             <svg className="w-5 h-5 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+            <XMarkIcon className="h-5 w-5" />
           </button>
-        </form>
+        </header>
+
+        <div className="mt-7 rounded-2xl border border-green-100 bg-green-50/80 p-5">
+          <div className="flex h-24 items-end justify-center gap-2" aria-hidden="true">
+            {[0, 1, 2, 3, 4, 5, 6].map((bar) => (
+              <span
+                key={bar}
+                className="voice-wave-bar block w-3 rounded-full bg-[#15803D] shadow-lg shadow-green-900/10"
+                style={{ animationDelay: `${bar * 120}ms` }}
+              />
+            ))}
+          </div>
+
+          <div className="mt-5 rounded-2xl bg-white px-4 py-4 shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Live transcription</p>
+            <p className="mt-2 min-h-8 text-lg font-extrabold leading-8 text-slate-900">
+              {transcript || 'Listening...'}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+          <button
+            className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl bg-red-600 px-5 text-base font-extrabold text-white transition hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-200"
+            type="button"
+            onClick={stopListening}
+          >
+            Stop Listening
+          </button>
+          <button
+            className="inline-flex min-h-12 flex-1 items-center justify-center rounded-xl border border-slate-200 bg-white px-5 text-base font-extrabold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-200"
+            type="button"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+        </div>
       </section>
     </div>
   );

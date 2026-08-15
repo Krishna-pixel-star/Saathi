@@ -159,8 +159,8 @@ export default function Onboarding() {
   const suggestedLanguages = languageSuggestions[location.state] || ['Hindi', 'English'];
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-green-50 via-white to-white px-4 py-8 sm:flex sm:items-center sm:justify-center sm:p-8">
-      <section className="mx-auto w-full max-w-xl rounded-3xl bg-white p-6 shadow-xl shadow-green-900/5 sm:p-10">
+    <main className="min-h-screen bg-transparent px-4 pb-20 pt-8 sm:flex sm:items-center sm:justify-center sm:p-8 sm:pb-20">
+      <section className="mx-auto w-full max-w-xl rounded-3xl bg-white/90 p-6 shadow-xl shadow-green-900/15 backdrop-blur-xl sm:p-10">
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#2E7D32] text-2xl text-white">
             🌾

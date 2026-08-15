@@ -28,18 +28,8 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: 'url("https://images.unsplash.com/photo-1592982537447-6f23f71eb339?q=80&w=2940&auto=format&fit=crop")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
-      {/* Dark Overlay & Blur */}
-      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm z-0" />
+    <div className="min-h-screen flex flex-col relative pb-12">
+      <div className="absolute inset-0 z-0 bg-slate-950/35 backdrop-blur-[2px]" />
 
       {/* Header Bar */}
       <header className="relative z-10 bg-[#064E3B] text-white px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md">
@@ -242,16 +232,6 @@ export default function Register() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="relative z-10 bg-slate-900/90 backdrop-blur-md text-slate-300 text-sm py-4 px-6 flex flex-col md:flex-row justify-between items-center text-center md:text-left border-t border-slate-700/50">
-        <p className="font-medium">Copyright © 2026 SAATHI. All rights reserved.</p>
-        <p className="mt-2 md:mt-0 flex items-center gap-2 font-medium bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-          </svg>
-          Toll-free Kisan Support: <span className="text-white">1800-XXX-XXXX</span>
-        </p>
-      </footer>
     </div>
   );
 }
