@@ -320,7 +320,7 @@ export default function AIVoiceModal({ onClose, onResponse, preferredLanguage = 
                 {status === 'error' && (t('ai.title') || 'SAATHI AI Assistant')}
               </h2>
               <p className="mt-0.5 text-xs font-bold text-[#15803D]">
-                Language: <span className="underline">{preferredLanguage}</span> ({langTag})
+                {t('ai.languageLabel')}: <span className="underline">{preferredLanguage}</span> ({langTag})
               </p>
             </div>
           </div>
@@ -355,7 +355,7 @@ export default function AIVoiceModal({ onClose, onResponse, preferredLanguage = 
           <div className="mt-4 rounded-xl bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between gap-2">
               <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
-                {responseText ? 'SAATHI Answer (Text + Voice)' : 'Your Spoken Query'}
+                {responseText ? t('ai.answerLabel') : t('ai.queryLabel')}
               </p>
               {responseText && (
                 <button
@@ -372,7 +372,7 @@ export default function AIVoiceModal({ onClose, onResponse, preferredLanguage = 
             <p className="mt-1.5 min-h-12 text-base font-bold leading-7 text-slate-800 sm:text-lg">
               {responseText || displayTranscript || (
                 <span className="italic text-slate-400">
-                  {status === 'listening' ? 'Speak clearly into your microphone...' : 'Type or speak a question below.'}
+                  {status === 'listening' ? t('ai.speakPrompt') : t('ai.typePrompt')}
                 </span>
               )}
             </p>
@@ -398,7 +398,7 @@ export default function AIVoiceModal({ onClose, onResponse, preferredLanguage = 
 
         {!isSupported && (
           <p className="mt-2 text-xs font-semibold text-amber-600">
-            Note: Speech recognition is not supported in this browser window. You can type your question above.
+            {t('ai.notSupported')}
           </p>
         )}
 

@@ -7,7 +7,7 @@ export default function Government() {
   return (
     <section className="mx-auto w-full max-w-3xl">
       <header className="mb-7">
-        <p className="text-sm font-semibold uppercase tracking-wider text-[#2E7D32]">Government bulletin</p>
+        <p className="text-sm font-semibold uppercase tracking-wider text-[#2E7D32]">{t('govt.bulletin')}</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{t('govt.title')}</h1>
         <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
           {t('govt.subtitle')}

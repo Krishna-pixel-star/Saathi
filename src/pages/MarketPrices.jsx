@@ -265,7 +265,7 @@ export default function MarketPrices() {
               <div key={mandi.id} className="rounded-2xl border border-slate-200 bg-white p-5 flex justify-between items-center">
                 <div>
                   <p className="font-bold text-slate-900 text-lg">{mandi.name}</p>
-                  <p className="text-sm font-medium text-slate-500 mt-0.5">{Math.round(mandi.distance)} km away</p>
+                  <p className="text-sm font-medium text-slate-500 mt-0.5">{t('prices.kmAway', { dist: Math.round(mandi.distance) })}</p>
                 </div>
                 <div className="text-right">
                   <p className={`text-xl font-extrabold ${idx === 0 ? 'text-[#2E7D32]' : 'text-slate-800'}`}>
@@ -287,8 +287,8 @@ export default function MarketPrices() {
               <span>🧠</span> {t('prices.insightTitle')}
             </h3>
             <p className="mt-3 text-base font-semibold text-slate-800 leading-relaxed">
-              {getCropName(selectedCrop)} prices in nearby mandis are trending {selectedCrop.trend === 'up' ? 'upward' : 'downward'}. 
-              {nearbyMandis.length > 0 ? ` ${nearbyMandis[0].name} currently offers the best price at ${formatRupees(nearbyMandis[0].price)}/qtl.` : ''}
+              {t('prices.insightText', { crop: getCropName(selectedCrop), direction: selectedCrop.trend === 'up' ? t('prices.trendingUp') : t('prices.trendingDown') })}
+              {nearbyMandis.length > 0 ? ` ${t('prices.bestPriceAt', { mandi: nearbyMandis[0].name, price: formatRupees(nearbyMandis[0].price) })}` : ''}
             </p>
             <a href="/buyer-discovery" className="mt-4 inline-block font-bold text-[#2E7D32] hover:underline">
               {t('prices.insightCompare')}

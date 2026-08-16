@@ -214,14 +214,14 @@ export default function BuyerDiscovery() {
       <header className="mb-6">
         <p className="text-xs font-extrabold uppercase tracking-widest text-[#2E7D32]">{t('buyer.tagline')}</p>
         <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">{t('buyer.title')}</h1>
-        <p className="mt-1 text-sm text-slate-500 font-medium">Find nearby buyers, compare offers and contact them directly.</p>
+        <p className="mt-1 text-sm text-slate-500 font-medium">{t('buyer.pageSubtitle')}</p>
 
         {}
         <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl bg-green-50 border border-green-100 px-4 py-3">
           <div className="flex items-center gap-2">
             <span className="text-lg">📍</span>
             <div>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Using your current location</p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('buyer.usingLocation')}</p>
               <p className="text-sm font-bold text-slate-800">
                 {permissionStatus === 'idle' ? t('buyer.locDisabled') :
                  permissionStatus === 'loading' ? t('buyer.findingLoc') :
@@ -230,13 +230,13 @@ export default function BuyerDiscovery() {
             </div>
           </div>
           <span className="shrink-0 text-xs font-bold text-[#2E7D32] bg-white border border-green-200 px-3 py-1 rounded-full">
-            {processedBuyers.length} buyers
+            {t('buyer.buyerCount', { count: processedBuyers.length })}
           </span>
         </div>
 
         {}
         <p className="mt-2 text-center text-xs font-medium text-slate-400">
-          📋 Sample buyer listings for demonstration — demo marketplace data
+          📋 {t('buyer.demoNote')}
         </p>
       </header>
 
@@ -250,7 +250,7 @@ export default function BuyerDiscovery() {
             type="search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by crop, buyer name, location or type..."
+            placeholder={t('buyer.searchPlaceholder')}
             className="w-full rounded-2xl border border-slate-200 bg-white py-4 pl-12 pr-4 text-base text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#2E7D32] focus:ring-4 focus:ring-green-100"
           />
         </label>
@@ -295,7 +295,7 @@ export default function BuyerDiscovery() {
         {}
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
           <p className="text-sm font-semibold text-slate-700 px-2">
-            {processedBuyers.length} {processedBuyers.length === 1 ? 'buyer' : 'buyers'} found within {radius} km
+            {t('buyer.buyerCount', { count: processedBuyers.length })} — {radius} km
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <label className="flex items-center gap-2 text-sm font-medium text-slate-600">
@@ -309,7 +309,7 @@ export default function BuyerDiscovery() {
               </select>
             </label>
             <label className="flex items-center gap-2 text-sm font-medium text-slate-600">
-              <span className="hidden sm:inline">Sort:</span>
+              <span className="hidden sm:inline">{t('buyer.sort')}:</span>
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
@@ -340,12 +340,12 @@ export default function BuyerDiscovery() {
             {}
             {buyer.matchScore >= 85 && sortOrder === 'best-match' && (
               <div className="bg-amber-50 border-b border-amber-100 px-5 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1.5">
-                ⭐ Best Match for your crop
+                ⭐ {t('buyer.bestMatchBanner')}
               </div>
             )}
             {buyer.type === 'Govt Agency' && (
               <div className="bg-blue-50 border-b border-blue-100 px-5 py-1.5 text-xs font-bold uppercase tracking-wider text-blue-700 flex items-center gap-1.5">
-                🏛️ Government Procurement — MSP Rates Apply
+                🏛️ {t('buyer.govtProcurementBanner')}
               </div>
             )}
 
@@ -367,20 +367,20 @@ export default function BuyerDiscovery() {
                     }`}>{buyer.availability || 'Available'}</span>
                   </div>
                   <p className="text-sm font-semibold text-slate-600">
-                    {buyer.type} · Looking for{' '}
+                    {buyer.type} · {t('buyer.lookingFor')}{' '}
                     <span className="text-[#2E7D32]">
                       {(buyer.cropsWanted || [buyer.cropRequired]).join(', ')}
                     </span>
                   </p>
                   <div className="mt-2 flex flex-col gap-0.5 text-sm text-slate-500">
                     <p className="flex items-center gap-1.5"><span>📍</span> {buyer.location}</p>
-                    <p className="flex items-center gap-1.5"><span>📏</span> <span className="font-semibold text-slate-700">{buyer.displayDistance}</span> from your location</p>
+                    <p className="flex items-center gap-1.5"><span>📏</span> <span className="font-semibold text-slate-700">{buyer.displayDistance}</span> {t('buyer.fromYourLocation')}</p>
                   </div>
                   {}
                   <div className="mt-2 flex flex-wrap items-center gap-3">
                     {buyer.rating && <Stars rating={buyer.rating} />}
                     {buyer.totalTransactions && (
-                      <span className="text-xs font-medium text-slate-400">{buyer.totalTransactions} transactions</span>
+                      <span className="text-xs font-medium text-slate-400">{buyer.totalTransactions} {t('buyer.transactions')}</span>
                     )}
                     {buyer.responseTime && (
                       <span className="text-xs font-medium text-slate-500 flex items-center gap-1">⚡ {buyer.responseTime}</span>
@@ -394,7 +394,7 @@ export default function BuyerDiscovery() {
                     <p className="text-xs font-bold uppercase text-slate-400">{t('buyer.needs')}</p>
                     <p className="mt-0.5 text-base font-extrabold text-slate-800">{buyer.quantityNeeded} qtl</p>
                     {buyer.minimumQuantity && (
-                      <p className="text-xs text-slate-400 mt-0.5">Min {buyer.minimumQuantity} qtl</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{t('buyer.minQtl', { qty: buyer.minimumQuantity })}</p>
                     )}
                   </div>
                   <div>
@@ -404,12 +404,12 @@ export default function BuyerDiscovery() {
                     </p>
                     {buyer.mandiPrice && (
                       <p className={`text-xs font-bold mt-0.5 ${buyer.priceDiff > 0 ? 'text-[#2E7D32]' : 'text-slate-500'}`}>
-                        {buyer.priceDiff > 0 ? '+' : ''}{fmtPrice(buyer.priceDiff)} vs Mandi
+                        {buyer.priceDiff > 0 ? '+' : ''}{fmtPrice(buyer.priceDiff)} {t('buyer.vs')} {t('explorer.mandi')}
                       </p>
                     )}
                   </div>
                   <div className="col-span-2 border-t border-slate-200 pt-2 mt-1">
-                    <p className="text-xs font-bold uppercase text-slate-400">Match</p>
+                    <p className="text-xs font-bold uppercase text-slate-400">{t('buyer.match')}</p>
                     <div className="mt-1">{renderMatchBadge(buyer.matchScore)}</div>
                   </div>
                 </div>
@@ -420,13 +420,13 @@ export default function BuyerDiscovery() {
                 {buyer.preferredPickup && (
                   <div className="flex items-center gap-2 text-xs text-slate-600 bg-slate-50 rounded-xl px-3 py-2 border border-slate-100">
                     <span>🚚</span>
-                    <span><span className="font-bold">Pickup:</span> {buyer.preferredPickup}</span>
+                    <span><span className="font-bold">{t('buyer.pickup')}:</span> {buyer.preferredPickup}</span>
                   </div>
                 )}
                 {buyer.paymentTerms && (
                   <div className="flex items-center gap-2 text-xs text-slate-600 bg-slate-50 rounded-xl px-3 py-2 border border-slate-100">
                     <span>💳</span>
-                    <span><span className="font-bold">Payment:</span> {buyer.paymentTerms}</span>
+                    <span><span className="font-bold">{t('buyer.payment')}:</span> {buyer.paymentTerms}</span>
                   </div>
                 )}
               </div>
@@ -434,7 +434,7 @@ export default function BuyerDiscovery() {
               {}
               <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100 pt-4">
                 <div className="flex flex-col gap-1">
-                  <p className="text-xs text-slate-400">Updated {buyer.updatedAt || 'recently'}</p>
+                  <p className="text-xs text-slate-400">{t('buyer.updatedTime', { time: buyer.updatedAt || '' })}</p>
                 </div>
                 <div className="flex w-full sm:w-auto items-center gap-2">
                   <a
@@ -488,7 +488,7 @@ export default function BuyerDiscovery() {
                   onClick={() => { setSearchTerm(''); setSelectedCrop(''); setSelectedType('All'); }}
                   className="rounded-xl border border-slate-200 bg-white px-6 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
                 >
-                  Clear Filters
+                  {t('buyer.clearFilters')}
                 </button>
               )}
             </div>
