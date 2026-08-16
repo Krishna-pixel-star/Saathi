@@ -145,7 +145,8 @@ export default function Dashboard({ onVoiceStart, voiceAssistantResponse }) {
     <div className="relative min-h-screen pb-14 text-slate-900">
       <div className="pointer-events-none fixed inset-0 z-0 bg-[rgba(5,30,22,0.20)]" />
       <section className="relative flex min-h-[560px] items-center px-4 pb-28 pt-40 sm:px-6 sm:pt-32 lg:min-h-[610px] lg:px-8 lg:pb-36 lg:pt-28">
-
+        {/* Seamless bottom fade — eliminates any visible seam between hero and content */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/60 to-transparent" />
 
         <div className="relative z-10 mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[1.1fr_0.72fr] lg:items-end">
           <div className="max-w-3xl">

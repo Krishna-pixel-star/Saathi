@@ -50,7 +50,7 @@ export default function Layout({ children }) {
         style={{ backgroundImage: "url('/saathi-hero-field.jpg')" }}
       >
         {}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/20 to-black/65" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/40 to-black/70" />
       </div>
 
       {}
