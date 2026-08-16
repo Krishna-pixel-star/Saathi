@@ -10,14 +10,27 @@ import {
   MapPinIcon,
   MicrophoneIcon,
   PencilSquareIcon,
+  PresentationChartLineIcon,
   UserGroupIcon,
 } from '@heroicons/react/24/outline';
 import { useLocationContext } from '../context/LocationContext';
 import { useUser } from '../context/UserContext';
 import { mockBuyers, mockCrops, mockPriceHistory, mockSupplyChain } from '../utils/mockData';
 
-const DEMO_LABEL = 'Demo Data';
-const DEMO_MARKET_LABEL = 'Demo Market Data';
+const languageLocales = {
+  English: 'en-IN',
+  Hindi: 'hi-IN',
+  Marathi: 'mr-IN',
+  Punjabi: 'pa-IN',
+  Bengali: 'bn-IN',
+  Telugu: 'te-IN',
+  Tamil: 'ta-IN',
+  Gujarati: 'gu-IN',
+  Kannada: 'kn-IN',
+  Malayalam: 'ml-IN',
+  Odia: 'or-IN',
+  Assamese: 'as-IN',
+};
 
 const formatRupees = (value) => (
   Number.isFinite(value) ? `₹${value.toLocaleString('en-IN')}` : '—'
@@ -54,11 +67,11 @@ const getRegionText = (address, fallback) => (
   address?.district || address?.city || address?.locality || fallback
 );
 
-const formatTimestamp = (value) => {
+const formatTimestamp = (value, language) => {
   if (!value) return '—';
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return '—';
-  return parsed.toLocaleString('en-IN', {
+  return parsed.toLocaleString(languageLocales[language] || 'en-IN', {
     day: '2-digit',
     month: 'short',
     hour: '2-digit',
@@ -97,7 +110,6 @@ export default function Dashboard({ onVoiceStart, voiceAssistantResponse }) {
   } = useLocationContext();
   const [manualLocation, setManualLocationText] = useState('');
   const [isManualOpen, setIsManualOpen] = useState(false);
-  const [selectedCropId, setSelectedCropId] = useState(mockSupplyChain[0]?.cropId || 1);
 
   const addressText = getAddressText(address);
   const hasLocation = Boolean(addressText);
@@ -111,24 +123,6 @@ export default function Dashboard({ onVoiceStart, voiceAssistantResponse }) {
       market: record.mandi || t('dashboard.localMandi'),
     }))
   ), [preferredLanguage, t]);
-
-  const buyerRows = useMemo(() => (
-    mockBuyers.slice(0, 3).map((buyer) => ({
-      ...buyer,
-      computedDistance: distanceKm(coordinates, buyer),
-    }))
-  ), [coordinates]);
-
-  const cropOptions = useMemo(() => (
-    mockSupplyChain.map((item) => ({
-      id: item.cropId,
-      label: cropNameFor(item.cropId, preferredLanguage),
-    }))
-  ), [preferredLanguage]);
-
-  const selectedJourney = useMemo(() => (
-    mockSupplyChain.find((item) => item.cropId === Number(selectedCropId)) || mockSupplyChain[0]
-  ), [selectedCropId]);
 
   const handleLocationRefresh = () => {
     if (hasLocation) {
@@ -149,24 +143,26 @@ export default function Dashboard({ onVoiceStart, voiceAssistantResponse }) {
 
   return (
     <div className="relative min-h-screen pb-14 text-slate-900">
-      <section className="relative flex min-h-[680px] items-center px-4 pb-10 pt-48 sm:px-6 sm:pt-36 lg:min-h-[700px] lg:px-8 lg:pt-32">
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#f7f3ea] to-transparent" />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[rgba(5,30,22,0.20)]" />
+      <section className="relative flex min-h-[560px] items-center px-4 pb-28 pt-40 sm:px-6 sm:pt-32 lg:min-h-[610px] lg:px-8 lg:pb-36 lg:pt-28">
 
-        <div className="relative z-10 mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+
+        <div className="relative z-10 mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[1.1fr_0.72fr] lg:items-end">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded border border-white/25 bg-[#063f2a]/35 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-emerald-50 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/20 bg-[#063f2a]/80 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-emerald-50 shadow-lg shadow-black/15 backdrop-blur-sm">
               <CheckCircleIcon className="h-4 w-4" />
               {t('dashboard.heroBadge')}
             </div>
 
-            <div className="mt-6 max-w-3xl rounded-lg bg-[#062f24]/55 p-5 text-white shadow-2xl shadow-black/20 backdrop-blur-[2px] sm:p-7">
-              <h1 className="text-4xl font-semibold leading-tight tracking-normal text-white sm:text-5xl lg:text-6xl">
-                {t('hero.headingLine1')} {t('hero.headingLine2')}
-              </h1>
-              <p className="mt-5 text-base font-medium leading-7 text-emerald-50 sm:text-xl">
-                {t('hero.tagline')}
-              </p>
-            </div>
+            <h1 className="mt-6 max-w-3xl text-4xl font-semibold leading-tight tracking-normal text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.45)] sm:text-5xl lg:text-6xl">
+              {t('hero.headingLine1')} {t('hero.headingLine2')}
+            </h1>
+            <p className="mt-5 text-base font-semibold leading-7 text-[#fff5b8] drop-shadow-[0_2px_8px_rgba(0,0,0,0.40)] sm:text-xl">
+              {t('hero.tagline')}
+            </p>
+            <p className="mt-4 max-w-2xl text-base font-medium leading-8 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)] sm:text-lg">
+              {t('dashboard.sectionBody')}
+            </p>
           </div>
 
           <LocationPanel
@@ -187,45 +183,52 @@ export default function Dashboard({ onVoiceStart, voiceAssistantResponse }) {
         </div>
       </section>
 
-      <main className="relative z-10 bg-[#f7f3ea] px-4 pb-16 sm:px-6 lg:px-8">
+      <main className="relative z-10 -mt-24 px-4 pb-16 sm:-mt-28 sm:px-6 lg:-mt-32 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <StatusStrip
-            lastUpdated={lastUpdated}
-            marketAvailable={marketRows.length > 0}
-            regionText={regionText}
-            t={t}
-          />
-
-          <section className="pt-10 sm:pt-12">
-            <div className="max-w-3xl">
-              <p className="text-sm font-semibold uppercase tracking-wide text-[#8a641d]">
-                {t('dashboard.sectionTag')}
-              </p>
-              <h2 className="mt-2 text-3xl font-semibold tracking-normal text-[#173f2e] sm:text-4xl">
-                {t('dashboard.sectionHeading')}
-              </h2>
-              <p className="mt-3 text-base leading-7 text-slate-600">
-                {t('dashboard.sectionBody')}
-              </p>
-            </div>
+          <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4" aria-label="Core agricultural services">
+            <ServiceCard
+              accent="green"
+              icon={UserGroupIcon}
+              title={t('card.buyersTitle')}
+              body={t('card.buyersSubtitle')}
+              action={t('dashboard.viewBuyersBtn')}
+              onOpen={() => navigate('/buyers')}
+            />
+            <ServiceCard
+              accent="amber"
+              icon={CurrencyRupeeIcon}
+              title={t('card.pricesTitle')}
+              body={t('card.pricesSubtitle')}
+              action={t('dashboard.viewMarketBtn')}
+              onOpen={() => navigate('/prices')}
+            />
+            <ServiceCard
+              accent="blue"
+              icon={PresentationChartLineIcon}
+              title={t('card.explorerTitle')}
+              body={t('card.explorerSubtitle')}
+              action={t('dashboard.viewJourneyBtn')}
+              onOpen={() => navigate('/explorer')}
+            />
+            <ServiceCard
+              accent="slate"
+              icon={BuildingLibraryIcon}
+              title={t('dashboard.govtTitle')}
+              body={t('dashboard.govtSubtitleShort')}
+              action={t('dashboard.viewGovtBtn')}
+              onOpen={() => navigate('/government')}
+            />
           </section>
 
-          <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]" aria-label="Market and buyer overview">
-            <MarketSnapshot rows={marketRows} onOpen={() => navigate('/prices')} t={t} />
-            <BuyerMatching rows={buyerRows} hasDeviceLocation={isDeviceLocation} onOpen={() => navigate('/buyers')} t={t} />
-          </section>
-
-          <MarketJourney
-            cropOptions={cropOptions}
-            selectedCropId={selectedCropId}
-            selectedJourney={selectedJourney}
-            onCropChange={setSelectedCropId}
-            onOpen={() => navigate('/explorer')}
-            t={t}
-          />
-
-          <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
-            <GovernmentInfo onOpen={() => navigate('/government')} t={t} />
+          <section className="mt-5 grid gap-5 lg:grid-cols-[1fr_0.98fr] lg:items-start">
+            <TodayMarket
+              lastUpdated={lastUpdated}
+              preferredLanguage={preferredLanguage}
+              rows={marketRows}
+              regionText={regionText}
+              onOpen={() => navigate('/prices')}
+              t={t}
+            />
             <VoiceAssistant
               assistantResponse={voiceAssistantResponse}
               onVoiceStart={onVoiceStart}
@@ -237,6 +240,98 @@ export default function Dashboard({ onVoiceStart, voiceAssistantResponse }) {
         </div>
       </main>
     </div>
+  );
+}
+
+function ServiceCard({ accent, icon: Icon, title, body, action, onOpen }) {
+  const accents = {
+    green: 'bg-emerald-50 text-emerald-800 border-emerald-100',
+    amber: 'bg-amber-50 text-amber-800 border-amber-100',
+    blue: 'bg-sky-50 text-sky-800 border-sky-100',
+    slate: 'bg-slate-100 text-slate-800 border-slate-200',
+  };
+
+  return (
+    <article className="group flex min-h-[210px] flex-col rounded-lg border border-white/80 bg-[rgba(255,253,246,0.92)] p-5 shadow-xl shadow-black/10 backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-[#c9b88f] hover:bg-white hover:shadow-2xl">
+      <span className={`flex h-11 w-11 items-center justify-center rounded-md border ${accents[accent] || accents.green}`}>
+        <Icon className="h-6 w-6" />
+      </span>
+      <h3 className="mt-5 text-xl font-semibold leading-7 text-[#173f2e]">
+        {title}
+      </h3>
+      <p className="mt-3 flex-1 text-sm leading-6 text-slate-600">
+        {body}
+      </p>
+      <button
+        className="mt-5 inline-flex min-h-10 items-center justify-between gap-3 rounded-md border border-[#cdbf9e] bg-[#fffdf6] px-3 text-sm font-semibold text-[#173f2e] transition hover:border-[#174532] hover:bg-[#eef5ef] focus:outline-none focus:ring-4 focus:ring-emerald-100"
+        type="button"
+        onClick={onOpen}
+      >
+        {action}
+        <ArrowRightIcon className="h-4 w-4 transition group-hover:translate-x-0.5" />
+      </button>
+    </article>
+  );
+}
+
+function TodayMarket({ lastUpdated, preferredLanguage, rows, regionText, onOpen, t }) {
+  return (
+    <section className="rounded-lg border border-white/80 bg-[rgba(255,253,246,0.90)] p-5 shadow-xl shadow-black/10 backdrop-blur-sm sm:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
+            {t('dashboard.priceSource')}
+          </p>
+          <h3 className="mt-1 text-2xl font-semibold text-[#173f2e]">
+            {t('dashboard.todayMarket')}
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {t('dashboard.region')}: {regionText}
+          </p>
+        </div>
+        <p className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-2 text-xs font-semibold text-slate-600">
+          <ArrowPathIcon className="h-4 w-4 text-[#174532]" />
+          {t('dashboard.lastUpdated')}: {formatTimestamp(lastUpdated, preferredLanguage)}
+        </p>
+      </div>
+
+      <div className="mt-5 overflow-x-auto rounded-md border border-slate-200">
+        <table className="w-full min-w-[560px] text-left text-sm">
+          <caption className="sr-only">Sample market crop prices</caption>
+          <thead className="bg-[#f4f0e6] text-xs uppercase tracking-wide text-slate-600">
+            <tr>
+              <th className="px-4 py-3 font-semibold">{t('prices.cropCol')}</th>
+              <th className="px-4 py-3 text-right font-semibold">{t('dashboard.priceCol')}</th>
+              <th className="px-4 py-3 font-semibold">{t('dashboard.marketCol')}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {rows.length > 0 ? rows.map((row) => (
+              <tr key={`${row.crop}-${row.market}`} className="bg-white">
+                <td className="px-4 py-3 font-semibold text-slate-900">{row.crop}</td>
+                <td className="px-4 py-3 text-right font-semibold text-[#174532]">{row.price}</td>
+                <td className="px-4 py-3 text-slate-600">{row.market}</td>
+              </tr>
+            )) : (
+              <tr>
+                <td className="px-4 py-5 text-center text-slate-500" colSpan="3">
+                  {t('common.noResults')}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <button
+        className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-md bg-[#07583f] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#064b36] focus:outline-none focus:ring-4 focus:ring-emerald-100"
+        type="button"
+        onClick={onOpen}
+      >
+        {t('dashboard.viewMarketBtn')}
+        <ArrowRightIcon className="h-4 w-4" />
+      </button>
+    </section>
   );
 }
 
@@ -264,7 +359,7 @@ function LocationPanel({
       : t('dashboard.locationStatus.unavailable');
 
   return (
-    <aside className="rounded-lg border border-white/35 bg-white/95 p-5 text-slate-900 shadow-2xl shadow-black/15 backdrop-blur-md">
+    <aside className="rounded-lg border border-white/75 bg-[rgba(255,253,246,0.92)] p-5 text-slate-900 shadow-2xl shadow-black/15 backdrop-blur-sm">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#f3ead7] text-[#835b12]">
           <MapPinIcon className="h-5 w-5" />
@@ -340,12 +435,12 @@ function LocationPanel({
   );
 }
 
-function StatusStrip({ lastUpdated, marketAvailable, regionText, t }) {
+function StatusStrip({ lastUpdated, marketAvailable, preferredLanguage, regionText, t }) {
   return (
     <section className="mt-0 grid gap-3 rounded-lg border border-[#d8d0bd] bg-[#fffdf6] p-4 shadow-lg shadow-black/5 md:-mt-8 md:grid-cols-3">
       <StatusItem label={t('dashboard.region')} value={regionText} />
-      <StatusItem label={t('dashboard.marketInfo')} value={marketAvailable ? DEMO_MARKET_LABEL : t('common.noResults')} />
-      <StatusItem label={t('dashboard.lastUpdated')} value={formatTimestamp(lastUpdated)} />
+      <StatusItem label={t('dashboard.marketInfo')} value={marketAvailable ? t('dashboard.priceSource') : t('common.noResults')} />
+      <StatusItem label={t('dashboard.lastUpdated')} value={formatTimestamp(lastUpdated, preferredLanguage)} />
     </section>
   );
 }
@@ -364,7 +459,7 @@ function MarketSnapshot({ rows, onOpen, t }) {
     <section className="rounded-lg border border-[#d9d1bf] bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">{DEMO_MARKET_LABEL}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">{t('dashboard.priceSource')}</p>
           <h3 className="mt-1 text-2xl font-semibold text-[#173f2e]">{t('dashboard.todayMarket')}</h3>
         </div>
         <CurrencyRupeeIcon className="h-8 w-8 text-[#8a641d]" />
@@ -415,7 +510,7 @@ function BuyerMatching({ rows, hasDeviceLocation, onOpen, t }) {
     <section className="rounded-lg border border-[#d9d1bf] bg-[#fbfaf4] p-5 shadow-sm">
       <div className="grid gap-5 lg:grid-cols-[0.78fr_1.22fr]">
         <div className="border-b border-[#ded6c5] pb-4 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">{DEMO_LABEL}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">{t('dashboard.demoLabel')}</p>
           <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-md bg-[#e7f0ea] text-[#174532]">
             <UserGroupIcon className="h-6 w-6" />
           </div>
@@ -502,7 +597,7 @@ function MarketJourney({ cropOptions, selectedCropId, selectedJourney, onCropCha
     <section className="mt-6 rounded-lg border border-[#d9d1bf] bg-white p-5 shadow-sm">
       <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">{DEMO_LABEL}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">{t('dashboard.demoLabel')}</p>
           <h3 className="mt-1 text-2xl font-semibold text-[#173f2e]">{t('dashboard.journeyTitle')}</h3>
           <p className="mt-3 text-sm leading-6 text-slate-600">
             {t('dashboard.journeyBody')}
@@ -626,7 +721,7 @@ function VoiceAssistant({ assistantResponse, onVoiceStart, t }) {
   ];
 
   return (
-    <section className="rounded-lg border border-[#d9d1bf] bg-[#173f2e] p-5 text-white shadow-sm">
+    <section className="rounded-lg border border-emerald-300/10 bg-[#064b36] p-4 text-white shadow-xl shadow-black/15 sm:p-5">
       <div className="flex items-start gap-3">
         <span className="flex h-11 w-11 items-center justify-center rounded-md bg-white/10 text-emerald-100">
           <MicrophoneIcon className="h-6 w-6" />
@@ -640,7 +735,7 @@ function VoiceAssistant({ assistantResponse, onVoiceStart, t }) {
       </div>
 
       <button
-        className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-white px-4 text-base font-semibold text-[#173f2e] transition hover:bg-emerald-50 focus:outline-none focus:ring-4 focus:ring-white/25 sm:w-auto"
+        className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-white px-4 text-base font-semibold text-[#173f2e] transition hover:bg-emerald-50 focus:outline-none focus:ring-4 focus:ring-white/25 sm:w-auto"
         type="button"
         onClick={onVoiceStart}
       >
@@ -648,7 +743,7 @@ function VoiceAssistant({ assistantResponse, onVoiceStart, t }) {
         {t('ai.speakButton')}
       </button>
 
-      <div className="mt-5 space-y-2 border-t border-white/15 pt-4">
+      <div className="mt-4 grid gap-2 border-t border-white/15 pt-4 md:grid-cols-3">
         {examples.map((example) => (
           <p key={example} className="text-sm font-medium leading-6 text-emerald-50/80">
             {example}
@@ -685,7 +780,7 @@ function HowSaathiHelps({ t }) {
   ];
 
   return (
-    <section className="mt-10 rounded-lg border border-[#d9d1bf] bg-[#fbfaf4] p-5 sm:p-6">
+    <section className="mt-5 rounded-lg border border-white/75 bg-[rgba(255,253,246,0.86)] p-5 shadow-xl shadow-black/10 backdrop-blur-sm sm:p-6">
       <div className="flex items-start gap-3">
         <InformationCircleIcon className="mt-1 h-6 w-6 shrink-0 text-[#8a641d]" />
         <div>
@@ -696,9 +791,9 @@ function HowSaathiHelps({ t }) {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
+      <div className="mt-5 grid gap-4 md:grid-cols-3">
         {points.map((point) => (
-          <div key={point.number} className="border-l-2 border-[#c8b893] pl-4">
+          <div key={point.number} className="border-l-2 border-[#c8b893] bg-white/55 py-1 pl-4 pr-3">
             <p className="text-sm font-semibold text-[#8a641d]">{point.number}</p>
             <h4 className="mt-2 text-lg font-semibold text-[#173f2e]">{point.title}</h4>
             <p className="mt-2 text-sm leading-6 text-slate-600">{point.body}</p>
