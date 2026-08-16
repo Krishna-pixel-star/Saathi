@@ -78,7 +78,7 @@ const distanceKm = (from, to) => {
   return Math.round(earthRadiusKm * c);
 };
 
-const journeyStages = [t('explorer.farmerStageTitle'), t('buyer.wholesaler'), t('explorer.stageDistributor'), t('buyer.retailer'), 'ग्राहक'];
+const getJourneyStages = (t) => [t('explorer.farmerStageTitle'), t('buyer.wholesaler'), t('explorer.stageDistributor'), t('buyer.retailer'), t('explorer.stageConsumer') || 'Consumer'];
 
 export default function Dashboard({ onVoiceStart, voiceAssistantResponse }) {
   const { t } = useUser();
@@ -491,12 +491,12 @@ function MarketJourney({ cropOptions, selectedCropId, selectedJourney, onCropCha
 
         <div>
           <div className="grid gap-2 sm:grid-cols-5 sm:gap-4">
-            {journeyStages.map((stage, index) => (
+            {getJourneyStages(t).map((stage, index) => (
               <div key={stage} className="relative">
                 <div className="flex min-h-14 items-center justify-center rounded-md border border-[#d9d1bf] bg-[#fbfaf4] px-3 text-center text-sm font-semibold text-[#173f2e]">
                   {stage}
                 </div>
-                {index < journeyStages.length - 1 && (
+                {index < getJourneyStages(t).length - 1 && (
                   <div className="absolute left-full top-1/2 hidden h-px w-4 bg-[#b8aa8f] sm:block" />
                 )}
               </div>

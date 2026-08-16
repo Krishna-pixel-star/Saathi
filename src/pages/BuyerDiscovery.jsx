@@ -4,7 +4,7 @@ import { useLocationContext } from '../context/LocationContext';
 import { calculateDistance, formatDistance } from '../utils/distanceUtils';
 import { mockBuyers, mockCrops, mockPriceHistory } from '../utils/mockData';
 
-const buyerTypes = ['All', t('explorer.stageWholesaler'), t('explorer.stageRetailer'), t('explorer.stageDistributor'), t('buyer.mandiBuyer'), 'Govt Agency'];
+const getBuyerTypes = (t) => ['All', t('explorer.stageWholesaler'), t('explorer.stageRetailer'), t('explorer.stageDistributor'), t('buyer.mandiBuyer'), 'Govt Agency'];
 const popularCrops = ['Wheat', 'Paddy', 'Mustard', 'Maize', 'Chickpea'];
 const radiusOptions = [10, 25, 50, 100];
 
@@ -276,7 +276,7 @@ export default function BuyerDiscovery() {
 
         {}
         <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
-          {buyerTypes.map((type) => (
+          {getBuyerTypes(t).map((type) => (
             <button
               key={type}
               type="button"

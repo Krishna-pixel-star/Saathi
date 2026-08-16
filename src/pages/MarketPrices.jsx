@@ -3,7 +3,7 @@ import { useUser } from '../context/UserContext';
 import { useLocationContext } from '../context/LocationContext';
 import { marketService } from '../api/marketService';
 
-const priceTabs = [t('explorer.wholesale'), t('explorer.retail'), t('explorer.stageMandi'), t('prices.tabMSP')];
+const getPriceTabs = (t) => [t('explorer.wholesale'), t('explorer.retail'), t('explorer.stageMandi'), t('prices.tabMSP')];
 const formatRupees = (price) => `₹${price.toLocaleString('en-IN')}`;
 
 function TrendChart({ data }) {
@@ -156,7 +156,7 @@ export default function MarketPrices() {
 
       {}
       <div className="-mx-4 flex overflow-x-auto border-b border-slate-200 px-4 sm:mx-0 sm:px-0 mb-6" role="tablist">
-        {priceTabs.map((tab) => (
+        {getPriceTabs(t).map((tab) => (
           <button
             key={tab}
             type="button"

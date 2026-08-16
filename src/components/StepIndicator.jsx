@@ -1,11 +1,13 @@
-const DEFAULT_STEPS = ['Registration', t('explorer.location'), 'Language'];
+import { useUser } from '../context/UserContext';
 
-export default function StepIndicator({ currentStep, steps = DEFAULT_STEPS }) {
+export default function StepIndicator({ currentStep, steps }) {
   const { t } = useUser();
+  const activeSteps = steps || ['Registration', t('explorer.location'), 'Language'];
+
   return (
-    <div className="w-full" aria-label={`Step ${currentStep} of ${steps.length}`}>
+    <div className="w-full" aria-label={`Step ${currentStep} of ${activeSteps.length}`}>
       <div className="flex items-start justify-between">
-        {steps.map((step, index) => {
+        {activeSteps.map((step, index) => {
           const stepNumber = index + 1;
           const isComplete = stepNumber < currentStep;
           const isCurrent = stepNumber === currentStep;
