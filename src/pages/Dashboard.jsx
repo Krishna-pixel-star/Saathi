@@ -184,7 +184,7 @@ export default function Dashboard({ onVoiceStart, voiceAssistantResponse }) {
         </div>
       </section>
 
-      <main className="relative z-10 -mt-24 px-4 pb-16 sm:-mt-28 sm:px-6 lg:-mt-32 lg:px-8">
+      <main className="relative -mt-24 px-4 pb-16 sm:-mt-28 sm:px-6 lg:-mt-32 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4" aria-label="Core agricultural services">
             <ServiceCard
