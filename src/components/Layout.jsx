@@ -42,7 +42,7 @@ export default function Layout({ children }) {
     : children;
 
   return (
-    <div className="relative min-h-screen bg-[#064E3B] text-white overflow-hidden">
+    <div className="relative min-h-screen bg-[#064E3B] text-white flex flex-col">
 
       {}
       <div 
