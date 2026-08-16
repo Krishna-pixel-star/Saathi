@@ -1,58 +1,161 @@
-import { useMemo, useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useUser } from '../context/UserContext';
-import { mockCrops, mockPriceHistory } from '../utils/mockData';
+import { useLocationContext } from '../context/LocationContext';
+import { marketService } from '../api/marketService';
 
-const priceTabs = ['Wholesale', 'Retail', 'Mandi', 'MSP'];
-
-const getPrice = (record, tab) => {
-  if (tab === 'Retail') return record.retail;
-  if (tab === 'MSP') return record.msp;
-  return record.wholesale;
-};
-
+const priceTabs = [t('explorer.wholesale'), t('explorer.retail'), t('explorer.stageMandi'), t('prices.tabMSP')];
 const formatRupees = (price) => `₹${price.toLocaleString('en-IN')}`;
 
-const getPriceRange = (price) => {
-  const variation = Math.max(50, Math.round((price * 0.05) / 10) * 10);
-  return `${formatRupees(price - variation)} – ${formatRupees(price + variation)}`;
-};
+function TrendChart({ data }) {
+  if (!data || data.length === 0) return null;
 
-export default function MarketPrices() {
-  const { location } = useUser();
-  const [activeTab, setActiveTab] = useState('Wholesale');
-  const [firstCropId, setFirstCropId] = useState('');
-  const [secondCropId, setSecondCropId] = useState('');
+  const minPrice = Math.min(...data.map(d => d.price));
+  const maxPrice = Math.max(...data.map(d => d.price));
+  const range = maxPrice - minPrice || 1; 
 
-  const priceRows = useMemo(
-    () => mockPriceHistory.map((record) => ({
-      ...record,
-      crop: mockCrops.find((crop) => crop.id === record.cropId),
-      modalPrice: getPrice(record, activeTab),
-      trend: record.cropId === 3 ? 'down' : 'up',
-    })),
-    [activeTab],
-  );
+  const width = 200;
+  const height = 40;
 
-  const selectedCrops = priceRows.filter(
-    (row) => row.cropId === Number(firstCropId) || row.cropId === Number(secondCropId),
-  );
-  const canCompare = firstCropId && secondCropId && firstCropId !== secondCropId;
-  const currentDistrict = location.district || 'Your district';
-  const currentMandi = location.district ? `${location.district} Mandi` : 'Nearby Mandi';
+  const points = data.map((d, i) => {
+    const x = (i / (data.length - 1)) * width;
+    const y = height - ((d.price - minPrice) / range) * height;
+    return `${x},${y}`;
+  }).join(' ');
+
+  const isUp = data[data.length-1].price >= data[0].price;
+  const color = isUp ? '#2E7D32' : '#DC2626';
 
   return (
-    <section className="mx-auto w-full max-w-4xl">
+    <div className="w-full flex justify-end items-center h-16">
+      <svg width={width} height={height} className="overflow-visible">
+        <polyline
+          fill="none"
+          stroke={color}
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          points={points}
+        />
+        {}
+        <circle cx={width} cy={height - ((data[data.length-1].price - minPrice) / range) * height} r="4" fill={color} />
+      </svg>
+    </div>
+  );
+}
+
+export default function MarketPrices() {
+  const { t, language } = useUser();
+  const { coordinates, address, permissionStatus } = useLocationContext();
+
+  const [activeTab, setActiveTab] = useState(t('explorer.wholesale'));
+  const [searchTerm, setSearchTerm] = useState('');
+  const [crops, setCrops] = useState([]);
+  const [selectedCropId, setSelectedCropId] = useState(1);
+  const [trendData, setTrendData] = useState([]);
+  const [nearbyMandis, setNearbyMandis] = useState([]);
+
+  const currentDistrict = address?.district || (permissionStatus === 'idle' ? t('location.notSet') : t('location.unavailable'));
+  const nearestMandi = address?.district ? `${address.district} Mandi` : '';
+
+  const tabLabels = {
+    Wholesale: t('prices.tabWholesale'),
+    Retail: t('prices.tabRetail'),
+    Mandi: t('prices.tabMandi'),
+    MSP: t('prices.tabMSP'),
+  };
+
+  useEffect(() => {
+    marketService.getMarketPrices(activeTab).then(data => {
+      setCrops(data);
+      if (!data.find(c => c.id === selectedCropId)) {
+        setSelectedCropId(data[0]?.id);
+      }
+    });
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (!selectedCropId) return;
+    marketService.getPriceTrend(selectedCropId).then(setTrendData);
+
+    if (coordinates) {
+      marketService.getNearbyMandis(selectedCropId, coordinates.latitude, coordinates.longitude)
+        .then(setNearbyMandis);
+    } else {
+      setNearbyMandis([]);
+    }
+  }, [selectedCropId, coordinates]);
+
+  const filteredCrops = useMemo(() => {
+    const q = searchTerm.toLowerCase().trim();
+    if (!q) return crops;
+    return crops.filter(c => 
+      c.name.toLowerCase().includes(q) || 
+      (c.nameHi && c.nameHi.includes(q)) ||
+      (c.nameMr && c.nameMr.includes(q))
+    );
+  }, [crops, searchTerm]);
+
+  const selectedCrop = crops.find(c => c.id === selectedCropId);
+  const tableCrops = filteredCrops.filter(c => c.id !== selectedCropId);
+
+  const getCropName = (crop) => {
+    if (!crop) return '';
+    if (language === 'Hindi' && crop.nameHi) return crop.nameHi;
+    if (language === 'Marathi' && crop.nameMr) return crop.nameMr;
+    return crop.name;
+  };
+
+  return (
+    <section className="mx-auto w-full max-w-4xl pb-10">
+      {}
       <header className="mb-6">
-        <p className="text-sm font-semibold uppercase tracking-wider text-[#2E7D32]">Market updates</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Market Prices</h1>
-        <div className="mt-4 rounded-2xl border border-green-100 bg-green-50 px-4 py-3 text-base text-slate-700 sm:text-lg">
-          <span className="font-bold text-[#2E7D32]">📍 {currentDistrict}</span>
-          <span className="mx-2 text-slate-300">|</span>
-          <span>{currentMandi}</span>
+        <p className="text-xs font-extrabold uppercase tracking-widest text-[#2E7D32]">{t('prices.tagline')}</p>
+        <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">{t('prices.title')}</h1>
+
+        {}
+        <div className="mt-5 flex items-center justify-between rounded-2xl bg-white p-4 border border-slate-200 shadow-sm">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl mt-0.5">📍</span>
+            <div>
+              <p className="text-sm font-bold text-slate-800">
+                {currentDistrict} {nearestMandi ? `| ${nearestMandi}` : ''}
+              </p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {permissionStatus === 'granted' ? t('prices.autoDetected') : t('location.notSet')}
+              </p>
+            </div>
+          </div>
+          <button className="text-sm font-bold text-[#2E7D32] hover:underline whitespace-nowrap">
+            {t('prices.changeLoc')}
+          </button>
+        </div>
+
+        {}
+        <div className="mt-3 flex items-center gap-2 px-1">
+          <span className="flex h-2.5 w-2.5 rounded-full bg-green-500"></span>
+          <p className="text-sm font-semibold text-slate-700">{t('prices.marketUpdatedToday')}</p>
+          <span className="mx-2 text-slate-300">•</span>
+          <p className="text-xs text-slate-500">{t('prices.dataSource')}</p>
         </div>
       </header>
 
-      <div className="-mx-4 flex overflow-x-auto border-b border-slate-200 px-4 sm:mx-0 sm:px-0" role="tablist" aria-label="Price category">
+      {}
+      <div className="mb-6">
+        <label className="relative block">
+          <span className="sr-only">Search</span>
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-xl">🔍</span>
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder={t('prices.searchPlaceholder')}
+            className="w-full rounded-2xl border border-slate-200 bg-white py-4 pl-12 pr-4 text-base text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#2E7D32] focus:ring-4 focus:ring-green-100"
+          />
+        </label>
+      </div>
+
+      {}
+      <div className="-mx-4 flex overflow-x-auto border-b border-slate-200 px-4 sm:mx-0 sm:px-0 mb-6" role="tablist">
         {priceTabs.map((tab) => (
           <button
             key={tab}
@@ -66,83 +169,164 @@ export default function MarketPrices() {
                 : 'border-transparent text-slate-500 hover:text-slate-800'
             }`}
           >
-            {tab}
+            {tabLabels[tab] || tab}
           </button>
         ))}
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-left">
-            <caption className="sr-only">{activeTab} crop prices</caption>
-            <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-500">
-              <tr>
-                <th className="px-5 py-4 sm:px-6">Crop</th>
-                <th className="px-5 py-4 sm:px-6">Modal Price</th>
-                <th className="px-5 py-4 sm:px-6">Price Range</th>
-                <th className="px-5 py-4 sm:px-6">Trend</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {priceRows.map((row) => (
-                <tr key={row.cropId}>
-                  <td className="px-5 py-5 text-lg font-bold text-slate-900 sm:px-6">{row.crop.name}</td>
-                  <td className="px-5 py-5 text-xl font-extrabold text-[#2E7D32] sm:px-6">{formatRupees(row.modalPrice)}</td>
-                  <td className="px-5 py-5 text-base text-slate-600 sm:px-6">{getPriceRange(row.modalPrice)}</td>
-                  <td className={`px-5 py-5 text-xl font-bold sm:px-6 ${row.trend === 'up' ? 'text-[#2E7D32]' : 'text-red-600'}`}>
-                    {row.trend === 'up' ? '↑' : '↓'}
-                  </td>
+      {}
+      {selectedCrop ? (
+        <div className="mb-6 rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="p-6 sm:p-8">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-6">
+              <div>
+                <h2 className="text-3xl font-extrabold text-slate-900 uppercase tracking-tight">{getCropName(selectedCrop)}</h2>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-4xl font-extrabold text-[#2E7D32]">{formatRupees(selectedCrop.currentPrice)}</span>
+                  <span className="text-lg font-bold text-slate-500">/qtl</span>
+                </div>
+                <p className="mt-1 text-sm font-semibold text-slate-500 uppercase tracking-wider">{t('prices.modalPriceCol')}</p>
+
+                <div className="mt-5 flex gap-6">
+                  <div>
+                    <p className="text-xs font-semibold text-slate-400 uppercase">{t('prices.rangeCol')}</p>
+                    <p className="mt-1 text-base font-bold text-slate-800">
+                      {selectedCrop.minPrice ? `${formatRupees(selectedCrop.minPrice)} – ${formatRupees(selectedCrop.maxPrice)}` : t('prices.notAvailable')}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-slate-400 uppercase">{t('prices.trendCol')}</p>
+                    <p className={`mt-1 text-base font-bold flex items-center gap-1 ${selectedCrop.trend === 'up' ? 'text-[#2E7D32]' : 'text-red-600'}`}>
+                      {selectedCrop.trend === 'up' ? '↑' : '↓'} {Math.abs(selectedCrop.trendPercent)}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {}
+              <div className="w-full sm:w-64 flex flex-col items-end pt-2">
+                <p className="text-xs font-bold uppercase text-slate-400 mb-2 w-full text-right">{t('prices.trendTitle')} ({t('prices.days7')})</p>
+                <TrendChart data={trendData} />
+              </div>
+            </div>
+          </div>
+          <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-between items-center">
+             <p className="text-xs font-medium text-slate-500">{t('prices.lastUpdated')}</p>
+          </div>
+        </div>
+      ) : (
+        <p className="mb-6 text-center text-slate-500">{t('common.noResults')}</p>
+      )}
+
+      {}
+      {tableCrops.length > 0 && (
+        <div className="mb-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-left">
+              <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500">
+                <tr>
+                  <th className="px-6 py-4">{t('prices.cropCol')}</th>
+                  <th className="px-6 py-4">{t('prices.modalPriceCol')}</th>
+                  <th className="px-6 py-4">{t('prices.rangeCol')}</th>
+                  <th className="px-6 py-4">{t('prices.trendCol')}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {tableCrops.map((crop) => (
+                  <tr 
+                    key={crop.id} 
+                    onClick={() => setSelectedCropId(crop.id)}
+                    className="cursor-pointer transition hover:bg-slate-50"
+                  >
+                    <td className="px-6 py-5 text-lg font-bold text-slate-900">{getCropName(crop)}</td>
+                    <td className="px-6 py-5 text-lg font-extrabold text-[#2E7D32]">
+                      {crop.currentPrice ? formatRupees(crop.currentPrice) : '-'}
+                    </td>
+                    <td className="px-6 py-5 text-sm font-semibold text-slate-600">
+                      {crop.minPrice ? `${formatRupees(crop.minPrice)} – ${formatRupees(crop.maxPrice)}` : '-'}
+                    </td>
+                    <td className={`px-6 py-5 text-lg font-bold ${crop.trend === 'up' ? 'text-[#2E7D32]' : 'text-red-600'}`}>
+                      {crop.currentPrice ? (crop.trend === 'up' ? '↑' : '↓') : '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
-      <section className="mt-10 rounded-3xl border border-green-100 bg-white p-5 shadow-sm sm:p-7">
-        <h2 className="text-2xl font-bold text-slate-900">Compare Crops</h2>
-        <p className="mt-2 text-base text-slate-600">Select two crops to compare their current {activeTab.toLowerCase()} prices.</p>
-
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <CropSelect label="First crop" value={firstCropId} onChange={setFirstCropId} />
-          <CropSelect label="Second crop" value={secondCropId} onChange={setSecondCropId} />
-        </div>
-
-        {canCompare && (
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            {selectedCrops.map((row) => (
-              <article key={row.cropId} className="rounded-2xl bg-green-50 p-5">
-                <h3 className="text-xl font-bold text-slate-900">{row.crop.name}</h3>
-                <p className="mt-4 text-sm font-semibold text-slate-600">Modal Price</p>
-                <p className="mt-1 text-3xl font-extrabold text-[#2E7D32]">{formatRupees(row.modalPrice)}</p>
-                <p className="mt-4 text-sm text-slate-600">Range: {getPriceRange(row.modalPrice)}</p>
-              </article>
+      {}
+      {selectedCrop && nearbyMandis.length > 0 && (
+        <div className="mb-8">
+          <h3 className="mb-4 text-xl font-bold text-slate-900">{t('prices.nearbyTitle')}</h3>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {nearbyMandis.map((mandi, idx) => (
+              <div key={mandi.id} className="rounded-2xl border border-slate-200 bg-white p-5 flex justify-between items-center">
+                <div>
+                  <p className="font-bold text-slate-900 text-lg">{mandi.name}</p>
+                  <p className="text-sm font-medium text-slate-500 mt-0.5">{Math.round(mandi.distance)} km away</p>
+                </div>
+                <div className="text-right">
+                  <p className={`text-xl font-extrabold ${idx === 0 ? 'text-[#2E7D32]' : 'text-slate-800'}`}>
+                    {formatRupees(mandi.price)}
+                  </p>
+                  {idx === 0 && <p className="text-xs font-bold text-[#2E7D32] uppercase mt-0.5">{t('prices.bestNearbyPrice')}</p>}
+                </div>
+              </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-6 sm:grid-cols-2 mb-8">
+        {}
+        {selectedCrop && (
+          <div className="rounded-3xl bg-green-50 p-6 border border-green-100 relative overflow-hidden">
+            <h3 className="text-sm font-extrabold uppercase tracking-wider text-[#2E7D32] flex items-center gap-2">
+              <span>🧠</span> {t('prices.insightTitle')}
+            </h3>
+            <p className="mt-3 text-base font-semibold text-slate-800 leading-relaxed">
+              {getCropName(selectedCrop)} prices in nearby mandis are trending {selectedCrop.trend === 'up' ? 'upward' : 'downward'}. 
+              {nearbyMandis.length > 0 ? ` ${nearbyMandis[0].name} currently offers the best price at ${formatRupees(nearbyMandis[0].price)}/qtl.` : ''}
+            </p>
+            <a href="/buyer-discovery" className="mt-4 inline-block font-bold text-[#2E7D32] hover:underline">
+              {t('prices.insightCompare')}
+            </a>
           </div>
         )}
 
-        {firstCropId && secondCropId && !canCompare && (
-          <p className="mt-5 text-sm font-medium text-amber-700">Choose two different crops to compare.</p>
-        )}
-      </section>
-    </section>
-  );
-}
+        {}
+        <div className="rounded-3xl bg-white p-6 border border-slate-200">
+          <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
+            <span>🔔</span> {t('prices.alertTitle')}
+          </h3>
+          <p className="text-sm text-slate-600 mb-3">
+            {t('prices.alertTarget')} <span className="font-bold">{selectedCrop ? getCropName(selectedCrop) : t('prices.cropCol')}</span> reaches:
+          </p>
+          <div className="flex gap-2">
+            <input 
+              type="text" 
+              defaultValue={selectedCrop ? `₹${selectedCrop.currentPrice + 100}` : ''}
+              className="w-full rounded-xl border border-slate-200 px-4 py-2 font-bold text-slate-800 focus:border-[#2E7D32] focus:ring-2 focus:ring-green-100 outline-none"
+            />
+            <button className="shrink-0 rounded-xl bg-slate-900 px-5 py-2 text-sm font-bold text-white hover:bg-slate-800 transition">
+              {t('prices.alertSetBtn')}
+            </button>
+          </div>
+        </div>
+      </div>
 
-function CropSelect({ label, value, onChange }) {
-  return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-bold text-slate-700">{label}</span>
-      <select
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-800 outline-none focus:border-[#2E7D32] focus:ring-4 focus:ring-green-100"
-      >
-        <option value="">Select a crop</option>
-        {mockCrops.map((crop) => (
-          <option key={crop.id} value={crop.id}>{crop.name}</option>
-        ))}
-      </select>
-    </label>
+      {}
+      <footer className="border-t border-slate-200 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left text-xs font-semibold text-slate-500">
+        <div>
+          <p>{t('prices.dataSource')}</p>
+          <p className="mt-1">{t('prices.dataNote')}</p>
+        </div>
+        <div className="text-slate-400">
+          SAATHI Market Engine
+        </div>
+      </footer>
+    </section>
   );
 }

@@ -1,39 +1,34 @@
 import { useUser } from '../context/UserContext';
 import LocationBar from './LocationBar';
 
-export default function Hero({ assistantResponse, isVoiceActive, onVoiceStart, onExploreMarket }) {
+export default function Hero({ assistantResponse }) {
   const { t } = useUser();
 
   return (
-    <section className="relative text-white pt-28 sm:pt-32 pb-4 px-4 sm:px-6 lg:px-8">
+    <section className="relative text-white pt-24 sm:pt-28 pb-3 px-4 sm:px-6 lg:px-8">
       <div className="relative z-10 mx-auto max-w-4xl text-center">
-
-        {}
-        <h1 className="font-devanagari text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-5xl drop-shadow-lg">
-          {t('hero.headingLine1')}<br />
+        {/* Main Trust Slogan */}
+        <h1 className="font-devanagari text-2xl sm:text-4xl lg:text-[40px] font-extrabold leading-tight tracking-tight text-white drop-shadow-md">
+          {t('hero.headingLine1')} <br className="hidden sm:inline" />
           {t('hero.headingLine2')}
         </h1>
 
+        {/* Supporting Tagline */}
+        <p className="mt-2 text-xs sm:text-sm font-medium tracking-wide text-emerald-100/90 drop-shadow-sm">
+          {t('hero.tagline') || t('hero.tagline')}
+        </p>
 
-
-        {}
-        <div className="mt-5 flex flex-wrap items-start justify-center gap-3">
-          {}
+        {/* Real Location Section */}
+        <div className="mt-4 flex flex-wrap items-start justify-center gap-3">
           <LocationBar compact={false} />
-
-          {}
-          <div className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/20 bg-[#0c2a20]/80 px-4 py-2.5 text-emerald-100 shadow-md backdrop-blur-md self-start">
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400 shrink-0" />
-            <span className="text-sm font-semibold">{t('hero.marketUpdatedToday')}</span>
-          </div>
         </div>
 
-        {}
+        {/* Voice Assistant Response (only if actively received) */}
         {assistantResponse && (
-          <div className="mt-4 text-left rounded-2xl border border-emerald-300/50 bg-[#0c2a20]/95 p-4 text-sm font-medium leading-relaxed text-emerald-50 shadow-xl backdrop-blur-md">
+          <div className="mt-4 mx-auto max-w-2xl text-left rounded-xl border border-emerald-400/40 bg-[#0c2a20]/95 p-4 text-sm font-medium leading-relaxed text-emerald-50 shadow-lg backdrop-blur-md">
             <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-1.5">
               <img src="/saathi-mic-logo.png" alt="SAATHI Voice" className="h-5 w-5 rounded-full bg-[#fdfbf7] object-contain p-0.5" />
-              <span>{t('hero.voiceAnswer') === 'hero.voiceAnswer' ? 'SAATHI AI Answer' : t('hero.voiceAnswer')}</span>
+              <span>{t('hero.voiceAnswer') === 'hero.voiceAnswer' ? 'SAATHI AI' : t('hero.voiceAnswer')}</span>
             </div>
             <p className="text-slate-100 font-semibold">{assistantResponse}</p>
           </div>

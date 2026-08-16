@@ -1,0 +1,81 @@
+import { mockCrops, mockPriceHistory, mockMandis } from '../utils/mockData';
+import { calculateDistance } from '../utils/distanceUtils';
+
+export const marketService = {
+
+  getMarketPrices: async (tab = 'Wholesale') => {
+
+    return mockCrops.map(crop => {
+      const history = mockPriceHistory.find(h => h.cropId === crop.id) || {};
+
+      let price = null;
+      if (tab === 'Retail') price = history.retail;
+      else if (tab === 'MSP') price = history.msp;
+      else price = history.wholesale; 
+
+      const variation = price ? Math.max(50, Math.round((price * 0.05) / 10) * 10) : 0;
+
+      const trend = crop.id % 3 === 0 ? 'down' : 'up'; 
+      const trendPercent = crop.id % 3 === 0 ? -1.2 : 2.4;
+
+      return {
+        ...crop,
+        currentPrice: price,
+        minPrice: price ? price - variation : null,
+        maxPrice: price ? price + variation : null,
+        trend,
+        trendPercent,
+        updatedAt: history.date || new Date().toISOString().split('T')[0]
+      };
+    }).filter(c => c.currentPrice !== null && c.currentPrice !== undefined);
+  },
+
+  getPriceTrend: async (cropId) => {
+
+    const currentPrice = mockPriceHistory.find(h => h.cropId === cropId)?.wholesale || 2000;
+    const trend = [];
+    const isUp = cropId % 3 !== 0;
+
+    let tempPrice = isUp ? currentPrice - 150 : currentPrice + 100;
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+
+      trend.push({
+        date: date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+        price: tempPrice
+      });
+
+      tempPrice += isUp ? Math.floor(Math.random() * 40) : -Math.floor(Math.random() * 30);
+    }
+
+    trend[6].price = currentPrice;
+
+    return trend;
+  },
+
+  getNearbyMandis: async (cropId, lat, lng) => {
+    if (!lat || !lng) return [];
+
+    const crop = mockCrops.find(c => c.id === cropId);
+    if (!crop) return [];
+
+    const basePrice = mockPriceHistory.find(h => h.cropId === cropId)?.wholesale || crop.basePrice;
+
+    const nearby = mockMandis.map(mandi => {
+      const distance = calculateDistance(lat, lng, mandi.latitude, mandi.longitude);
+
+      const priceVariation = Math.floor(Math.random() * 100) - 50; 
+
+      return {
+        ...mandi,
+        distance,
+        price: basePrice + priceVariation,
+        updatedAt: 'Today'
+      };
+    });
+
+    return nearby.sort((a, b) => a.distance - b.distance).slice(0, 4); 
+  }
+};

@@ -4,6 +4,7 @@ import HeroBackground from './components/HeroBackground';
 import Layout from './components/Layout';
 import PersistentFooter from './components/PersistentFooter';
 import { UserProvider, useUser } from './context/UserContext';
+import { LocationProvider } from './context/LocationContext';
 import BuyerDiscovery from './pages/BuyerDiscovery';
 import Dashboard from './pages/Dashboard';
 import Government from './pages/Government';
@@ -45,27 +46,27 @@ function GlobalHeroBackground() {
 export default function App() {
   return (
     <UserProvider>
-      <BrowserRouter>
-        <GlobalHeroBackground />
-        <Routes>
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/onboarding" element={<Onboarding />} />
+      <LocationProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/onboarding" element={<Onboarding />} />
 
-          <Route path="/" element={<ProtectedPage><Dashboard /></ProtectedPage>} />
-          <Route path="/dashboard" element={<ProtectedPage><Dashboard /></ProtectedPage>} />
-          <Route path="/buyers" element={<ProtectedPage><BuyerDiscovery /></ProtectedPage>} />
-          <Route path="/prices" element={<ProtectedPage><MarketPrices /></ProtectedPage>} />
-          <Route path="/explorer" element={<ProtectedPage><MarketExplorer /></ProtectedPage>} />
-          <Route path="/government" element={<ProtectedPage><Government /></ProtectedPage>} />
-          <Route path="/profile" element={<ProtectedPage><Profile /></ProtectedPage>} />
-          <Route path="/ai" element={<ProtectedPage><Dashboard /></ProtectedPage>} />
+            <Route path="/" element={<ProtectedPage><Dashboard /></ProtectedPage>} />
+            <Route path="/dashboard" element={<ProtectedPage><Dashboard /></ProtectedPage>} />
+            <Route path="/buyers" element={<ProtectedPage><BuyerDiscovery /></ProtectedPage>} />
+            <Route path="/prices" element={<ProtectedPage><MarketPrices /></ProtectedPage>} />
+            <Route path="/explorer" element={<ProtectedPage><MarketExplorer /></ProtectedPage>} />
+            <Route path="/government" element={<ProtectedPage><Government /></ProtectedPage>} />
+            <Route path="/profile" element={<ProtectedPage><Profile /></ProtectedPage>} />
+            <Route path="/ai" element={<ProtectedPage><Dashboard /></ProtectedPage>} />
 
-          <Route path="/notifications" element={<ProtectedPage><Notifications /></ProtectedPage>} />
-          <Route path="*" element={<CatchAllRedirect />} />
-        </Routes>
-        <PersistentFooter />
-      </BrowserRouter>
+            <Route path="/notifications" element={<ProtectedPage><Notifications /></ProtectedPage>} />
+            <Route path="*" element={<CatchAllRedirect />} />
+          </Routes>
+        </BrowserRouter>
+      </LocationProvider>
     </UserProvider>
   );
 }

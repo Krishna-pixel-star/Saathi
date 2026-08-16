@@ -10,7 +10,7 @@ export default function Layout({ children }) {
   const { logout, preferredLanguage, setLanguage, user } = useUser();
   const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(location.pathname === '/ai');
   const [voiceAssistantResponse, setVoiceAssistantResponse] = useState('');
-  const hasHero = location.pathname === '/' || location.pathname === '/ai';
+  const isDashboardPage = location.pathname === '/' || location.pathname === '/ai' || location.pathname === '/dashboard';
 
   useEffect(() => {
     setIsVoiceModalOpen(location.pathname === '/ai');
@@ -42,7 +42,18 @@ export default function Layout({ children }) {
     : children;
 
   return (
-    <div className="relative min-h-screen bg-transparent">
+    <div className="relative min-h-screen bg-[#064E3B] text-white overflow-hidden">
+
+      {}
+      <div 
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none"
+        style={{ backgroundImage: "url('/saathi-hero-field.jpg')" }}
+      >
+        {}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/20 to-black/65" />
+      </div>
+
+      {}
       <PlatformTopNav
         preferredLanguage={preferredLanguage}
         user={user}
@@ -51,11 +62,31 @@ export default function Layout({ children }) {
         onVoiceStart={openVoiceModal}
       />
 
-      <main className={`relative z-10 min-h-screen w-full pb-14 ${hasHero ? '' : 'px-4 pt-36 sm:px-6 lg:pt-24'}`}>
-        {enhancedChildren}
+      {}
+      <main className="relative z-10 min-h-screen w-full pb-16">
+        {isDashboardPage ? (
+          enhancedChildren
+        ) : (
+          <div className="mx-auto max-w-6xl px-4 pt-28 sm:px-6 lg:pt-32">
+            <div className="rounded-3xl border border-white/80 bg-[#f4f5f0]/95 backdrop-blur-md p-6 sm:p-8 shadow-2xl text-slate-900">
+              {enhancedChildren}
+            </div>
+          </div>
+        )}
       </main>
 
-      {isVoiceModalOpen && <AIVoiceModal onClose={closeVoiceModal} onResponse={setVoiceAssistantResponse} />}
+      {}
+      {isVoiceModalOpen && (
+        <AIVoiceModal
+          onClose={closeVoiceModal}
+          onResponse={setVoiceAssistantResponse}
+          preferredLanguage={preferredLanguage}
+          onNavigate={(path) => {
+            navigate(path);
+            closeVoiceModal();
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -4,10 +4,10 @@ import { useUser } from '../context/UserContext';
 import { useTranslation } from '../hooks/useTranslation';
 
 const dashboardItems = [
-  { label: 'Buyer Discovery', path: '/buyers', icon: '🤝', color: 'bg-green-50 text-[#2E7D32]' },
-  { label: 'Market Prices', path: '/prices', icon: '📈', color: 'bg-amber-50 text-amber-700' },
-  { label: 'Market Explorer', path: '/explorer', icon: '🗺️', color: 'bg-sky-50 text-sky-700' },
-  { label: 'Government Info', path: '/government', icon: '🏛️', color: 'bg-violet-50 text-violet-700' },
+  { label: t('nav.buyerDiscovery'), path: '/buyers', icon: '🤝', color: 'bg-green-50 text-[#2E7D32]' },
+  { label: t('nav.marketPrices'), path: '/prices', icon: '📈', color: 'bg-amber-50 text-amber-700' },
+  { label: t('nav.marketExplorer'), path: '/explorer', icon: '🗺️', color: 'bg-sky-50 text-sky-700' },
+  { label: t('card.govtTitle'), path: '/government', icon: '🏛️', color: 'bg-violet-50 text-violet-700' },
 ];
 
 export default function Home() {
@@ -25,7 +25,7 @@ export default function Home() {
       <header className="mb-8">
         <p className="text-sm font-medium text-[#2E7D32]">{currentDate}</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          {t('Welcome, {name}', { name: user?.name || t('Farmer') })}
+          {t('Welcome, {name}', { name: user?.name || t(t('explorer.stageFarmer')) })}
         </h1>
         <p className="mt-2 text-base text-slate-600">{t('What would you like to explore today?')}</p>
       </header>

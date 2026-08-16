@@ -1,13 +1,16 @@
+import { useUser } from '../context/UserContext';
 import { mockGovernmentUpdates } from '../utils/mockData';
 
 export default function Government() {
+  const { t } = useUser();
+
   return (
     <section className="mx-auto w-full max-w-3xl">
       <header className="mb-7">
         <p className="text-sm font-semibold uppercase tracking-wider text-[#2E7D32]">Government bulletin</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Government Information</h1>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{t('govt.title')}</h1>
         <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-          Important local notices, contacts, and schemes for your farm.
+          {t('govt.subtitle')}
         </p>
       </header>
 
@@ -28,7 +31,7 @@ export default function Government() {
               type="button"
               className="mt-5 rounded-xl border border-[#2E7D32] px-4 py-2.5 text-base font-semibold text-[#2E7D32] transition hover:bg-green-50 focus:outline-none focus:ring-4 focus:ring-green-100"
             >
-              Read More
+              {t('govt.readMore')}
             </button>
           </article>
         ))}

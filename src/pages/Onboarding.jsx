@@ -171,8 +171,6 @@ export default function Onboarding() {
           </p>
         </div>
 
-
-
         <div className="mt-10">
           {step === 1 && (
             <form onSubmit={handleRegistrationNext} noValidate>
@@ -211,7 +209,7 @@ export default function Onboarding() {
                 </label>
 
                 <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-slate-700">Farmer ID</span>
+                  <span className="mb-2 block text-sm font-medium text-slate-700">{t('profile.farmerId')}</span>
                   <input
                     type="text"
                     name="farmerId"
@@ -245,7 +243,7 @@ export default function Onboarding() {
               {locationMode === 'permission' && (
                 <div className="rounded-2xl border border-green-100 bg-green-50 p-5 text-center">
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-xl shadow-sm">📍</div>
-                  <p className="mt-4 font-semibold text-slate-900">Use your current location</p>
+                  <p className="mt-4 font-semibold text-slate-900">{t('location.permissionTitle')}</p>
                   <p className="mt-1 text-sm leading-6 text-slate-600">We&apos;ll only use it to identify your village and nearby services.</p>
                   <button
                     type="button"
@@ -277,16 +275,14 @@ export default function Onboarding() {
                     type="button"
                     onClick={() => setLocationMode('manual')}
                     className="mt-4 text-sm font-semibold text-[#2E7D32] hover:underline"
-                  >
-                    Change location
-                  </button>
+                  >{t('hero.changeLocation')}</button>
                 </div>
               )}
 
               {locationMode === 'manual' && (
                 <div className="space-y-5">
                   <label className="block">
-                    <span className="mb-2 block text-sm font-medium text-slate-700">Village</span>
+                    <span className="mb-2 block text-sm font-medium text-slate-700">{t('profile.village')}</span>
                     <select
                       value={location.village}
                       onChange={handleLocationChange}
@@ -300,7 +296,7 @@ export default function Onboarding() {
                   </label>
 
                   <label className="block">
-                    <span className="mb-2 block text-sm font-medium text-slate-700">Block</span>
+                    <span className="mb-2 block text-sm font-medium text-slate-700">{t('profile.block')}</span>
                     <select
                       value={location.block}
                       onChange={(event) => updateManualLocation('block', event.target.value)}
@@ -313,7 +309,7 @@ export default function Onboarding() {
                   </label>
 
                   <label className="block">
-                    <span className="mb-2 block text-sm font-medium text-slate-700">District</span>
+                    <span className="mb-2 block text-sm font-medium text-slate-700">{t('profile.district')}</span>
                     <select
                       value={location.district}
                       onChange={(event) => updateManualLocation('district', event.target.value)}
@@ -326,7 +322,7 @@ export default function Onboarding() {
                   </label>
 
                   <label className="block">
-                    <span className="mb-2 block text-sm font-medium text-slate-700">State</span>
+                    <span className="mb-2 block text-sm font-medium text-slate-700">{t('profile.state')}</span>
                     <select
                       value={location.state}
                       onChange={(event) => updateManualLocation('state', event.target.value)}

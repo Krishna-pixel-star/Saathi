@@ -1,6 +1,7 @@
-const DEFAULT_STEPS = ['Registration', 'Location', 'Language'];
+const DEFAULT_STEPS = ['Registration', t('explorer.location'), 'Language'];
 
 export default function StepIndicator({ currentStep, steps = DEFAULT_STEPS }) {
+  const { t } = useUser();
   return (
     <div className="w-full" aria-label={`Step ${currentStep} of ${steps.length}`}>
       <div className="flex items-start justify-between">

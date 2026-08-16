@@ -1,23 +1,26 @@
 import { createContext, useContext, useMemo, useState } from 'react';
+import { supportedLanguages, translations } from '../utils/translations';
 
-const languageCodeToName = {
-  en: 'English',
-  hi: 'Hindi',
-  mr: 'Marathi',
-  bn: 'Bengali',
-  te: 'Telugu',
-  ta: 'Tamil',
-  pa: 'Punjabi',
+const languageCodeToName = supportedLanguages.reduce((acc, item) => {
+  acc[item.code] = item.name;
+  return acc;
+}, {});
+
+const languageNameToCode = supportedLanguages.reduce((acc, item) => {
+  acc[item.name] = item.code;
+  return acc;
+}, {});
+
+const normalizeLanguage = (language) => {
+  if (!language) return 'Hindi';
+  if (languageCodeToName[language]) return languageCodeToName[language];
+  const matched = supportedLanguages.find(
+    (item) => item.name.toLowerCase() === language.toLowerCase() || item.nativeName.toLowerCase() === language.toLowerCase(),
+  );
+  return matched ? matched.name : 'Hindi';
 };
 
-const languageNameToCode = Object.entries(languageCodeToName).reduce(
-  (codes, [code, name]) => ({ ...codes, [name]: code }),
-  {},
-);
-
-const normalizeLanguage = (language) => languageCodeToName[language] || language || 'English';
-
-const getLanguageCode = (language) => languageNameToCode[normalizeLanguage(language)] || 'en';
+const getLanguageCode = (language) => languageNameToCode[normalizeLanguage(language)] || 'hi';
 
 const getSavedLanguage = () => {
   const savedLanguage = localStorage.getItem('saathi_language');
@@ -73,12 +76,27 @@ export function UserProvider({ children }) {
     localStorage.setItem('saathi_language', getLanguageCode(languageName));
   };
 
+  const t = (key, params = {}) => {
+    const langDict = translations[preferredLanguage] || translations['Hindi'] || translations['English'] || {};
+    let text = langDict[key] || translations['Hindi']?.[key] || translations['English']?.[key] || key;
+
+    if (params && typeof params === 'object') {
+      Object.keys(params).forEach((paramKey) => {
+        text = text.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), params[paramKey]);
+      });
+    }
+
+    return text;
+  };
+
   const value = useMemo(
     () => ({
       user,
       location,
       preferredLanguage,
       isLoggedIn,
+      supportedLanguages,
+      t,
       login,
       logout,
       updateLocation,

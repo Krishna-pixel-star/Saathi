@@ -48,11 +48,12 @@ const toneClasses = {
 };
 
 export default function Notifications() {
+  const { t } = useUser();
   return (
     <section className="mx-auto w-full max-w-3xl">
       <header className="mb-6">
         <p className="text-sm font-semibold uppercase tracking-wider text-[#2E7D32]">Alerts</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Notifications</h1>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{t('nav.notifications')}</h1>
         <p className="mt-2 text-base text-slate-600">
           Buyer activity, price signals, and logistics updates that need your attention.
         </p>
