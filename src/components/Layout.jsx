@@ -46,8 +46,8 @@ export default function Layout({ children }) {
 
       {}
       <div 
-        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat pointer-events-none"
-        style={{ backgroundImage: "url('/saathi-hero-field.jpg')" }}
+        className="fixed inset-0 z-0 bg-cover bg-no-repeat pointer-events-none"
+        style={{ backgroundImage: "url('/saathi-hero-field.jpg')", backgroundPosition: 'center 60%' }}
       >
         {}
         <div className="absolute inset-0 bg-black/65" />
