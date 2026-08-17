@@ -143,7 +143,8 @@ export default function Dashboard({ onVoiceStart, voiceAssistantResponse }) {
 
   return (
     <div className="relative min-h-screen pb-14 text-slate-900">
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[rgba(5,30,22,0.20)]" />
+      <div className="pointer-events-none 
+      fixed inset-0 z-0 bg-[rgba(5,30,22,0.20)]" />
       <section className="relative flex min-h-[560px] items-center px-4 pb-28 pt-40 sm:px-6 sm:pt-32 lg:min-h-[610px] lg:px-8 lg:pb-36 lg:pt-28">
         {/* Seamless bottom fade — eliminates any visible seam between hero and content */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/60 to-transparent" />
@@ -253,7 +254,7 @@ function ServiceCard({ accent, icon: Icon, title, body, action, onOpen }) {
   };
 
   return (
-    <article className="group flex min-h-[210px] flex-col rounded-lg border border-white/80 bg-[rgba(255,253,246,0.92)] p-5 shadow-xl shadow-black/10 backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-[#c9b88f] hover:bg-white hover:shadow-2xl">
+<article className="group flex min-h-[210px] flex-col rounded-lg border border-white/80 bg-[rgba(255,253,246,0.70)] p-5 shadow-xl shadow-black/10 backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-[#c9b88f] hover:bg-[rgba(255,253,246,0.82)] hover:shadow-2xl">
       <span className={`flex h-11 w-11 items-center justify-center rounded-md border ${accents[accent] || accents.green}`}>
         <Icon className="h-6 w-6" />
       </span>
