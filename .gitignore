@@ -1,2 +1,8 @@
-node_modules
 .vercel
+.env*
+node_modules/
+dist/
+package-lock.json
+pnpm-lock.yaml
+live_html.txt
+*.log
